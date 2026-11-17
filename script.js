@@ -812,3 +812,94 @@ themeToggle.addEventListener("click", () => {
 renderTasks();
 
 updateThemeButton();
+
+// JSON EXPORT AND IMPORT
+
+const exportBtn = document.getElementById("exportBtn");
+const importBtn = document.getElementById("importBtn");
+const importFile = document.getElementById("importFile");
+
+// EXPORT TASKS
+exportBtn.addEventListener("click", () => {
+    const data = JSON.stringify(tasks, null, 4);
+
+    const blob = new Blob([data], {
+        type: "application/json"
+    });
+
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "taskflow-backup.json";
+
+    link.click();
+
+    URL.revokeObjectURL(url);
+
+    alert("Tasks exported successfully!");
+});
+
+// OPEN IMPORT FILE
+importBtn.addEventListener("click", () => {
+    importFile.click();
+});
+
+// IMPORT TASKS
+importFile.addEventListener("change", (e) => {
+    const file = e.target.files[0];
+
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = (event) => {
+        try {
+            const importedTasks = JSON.parse(event.target.result);
+
+            const validStatuses = ["todo", "progress", "done"];
+            const validPriorities = ["low", "medium", "high"];
+
+            if (!Array.isArray(importedTasks)) {
+                throw new Error("Invalid JSON format");
+            }
+
+            const validTasks = importedTasks.every(task =>
+                task &&
+                Number.isSafeInteger(task.id) &&
+                typeof task.title === "string" &&
+                typeof task.description === "string" &&
+                validPriorities.includes(task.priority) &&
+                validStatuses.includes(task.status) &&
+                typeof task.date === "string" &&
+                !Number.isNaN(Date.parse(task.date))
+            );
+
+            if (!validTasks) {
+                throw new Error("Invalid task data");
+            }
+
+            const confirmImport = confirm(
+                "Importing will replace your existing tasks. Continue?"
+            );
+
+            if (!confirmImport) return;
+
+            tasks = importedTasks;
+
+            saveTasks();
+            renderTasks();
+
+            alert("Tasks imported successfully!");
+
+        } catch (error) {
+            alert("Invalid JSON file. Please select a valid TaskFlow backup.");
+            console.error(error);
+
+        } finally {
+            importFile.value = "";
+        }
+    };
+
+    reader.readAsText(file);
+});

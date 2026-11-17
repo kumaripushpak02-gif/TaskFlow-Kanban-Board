@@ -1222,3 +1222,34 @@ body.dark-mode .green {
     }
 
 }
+
+/* EXPORT AND IMPORT BUTTONS */
+
+.export-btn,
+.import-btn {
+    padding: 12px 15px;
+    border-radius: 9px;
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+.export-btn:hover,
+.import-btn:hover {
+    background: var(--primary-light);
+    color: var(--primary);
+}
+
+@media (max-width: 768px) {
+    .export-btn,
+    .import-btn {
+        justify-content: center;
+    }
+}
